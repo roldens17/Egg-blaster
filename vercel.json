@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/egg_blaster_game.html" }
+  ]
+}
