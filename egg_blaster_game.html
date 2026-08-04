@@ -537,7 +537,8 @@
   function popEgg(egg, viaBomb) {
     egg.alive = false;
     const multiplier = viaBomb ? 1 : Math.max(1, combo);
-    let points = (EGG_KINDS[egg.kind]?.points ?? 1);
+    const basePoints = EGG_KINDS[egg.kind]?.points ?? 1;
+    let points = basePoints;
     if (egg.kind !== "rotten") points *= multiplier;
     score += points;
     if (score < 0) score = 0;
@@ -549,7 +550,6 @@
       addPopup(egg.x, egg.y, `${points}`, "#ff5c5c");
       shake(10, 0.25);
       flash("120,20,20", 0.18);
-      breakCombo();
       beep(140, 0.12);
     } else if (egg.kind === "bomb" && !viaBomb) {
       addPopup(egg.x, egg.y, "BOOM!", "#ff5c5c");
@@ -558,7 +558,7 @@
       beep(90, 0.2);
       triggerBomb(egg.x, egg.y);
     } else {
-      const label = multiplier > 1 ? `+${points} x${multiplier}` : `+${points}`;
+      const label = multiplier > 1 ? `+${basePoints} x${multiplier}` : `+${points}`;
       addPopup(egg.x, egg.y, label, egg.gold ? "#ffe066" : "#ffffff");
       shake(egg.gold ? 8 : 4, 0.15);
       beep(egg.gold ? 760 : 520 + Math.min(combo, 10) * 12);
@@ -589,7 +589,11 @@
     for (let i = eggs.length - 1; i >= 0; i--) {
       const egg = eggs[i];
       if (egg.alive && egg.contains(x, y)) {
-        registerHit();
+        if (egg.kind === "rotten") {
+          breakCombo();
+        } else {
+          registerHit();
+        }
         popEgg(egg, false);
         return;
       }
